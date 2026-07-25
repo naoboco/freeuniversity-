@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAO Engineering OS — Programme Ingénieur Électronique & Mécanique</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #1c2330;
+  --border: #2d3646;
+  --text: #e6e9ef;
+  --muted: #8b95a7;
+  --accent: #4fc3f7;
+  --accent2: #ffb74d;
+  --green: #66bb6a;
+  --purple: #b39ddb;
+  --coral: #ff8a65;
+  --radius: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding-bottom: 60px;
+}
+header {
+  padding: 28px 20px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: sticky; top: 0; z-index: 10;
+}
+.header-inner { max-width: 1000px; margin: 0 auto; }
+h1 { font-size: 20px; font-weight: 600; letter-spacing: .3px; }
+h1 span { color: var(--accent); }
+.subtitle { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.global-progress { margin-top: 14px; }
+.gp-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+.gp-track { height: 8px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+.gp-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--purple)); border-radius: 99px; transition: width .4s ease; }
+
+.container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+
+.tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.tab {
+  padding: 8px 18px; border-radius: 99px; font-size: 13px; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+  transition: all .15s; user-select: none;
+}
+.tab:hover { border-color: var(--accent); }
+.tab.active { background: var(--accent); color: #0d1117; font-weight: 600; border-color: var(--accent); }
+.tab .badge { font-size: 11px; opacity: .8; margin-left: 4px; }
+
+.phase { display: none; animation: fadein .25s ease; }
+.phase.active { display: block; }
+@keyframes fadein { from { opacity: 0; transform: translateY(6px);} to { opacity:1; transform:none;} }
+
+.phase-intro {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px 20px; margin-bottom: 18px;
+}
+.phase-intro .pi-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.pi-badge { font-size: 11px; font-weight: 600; padding: 3px 12px; border-radius: 99px; }
+.pi-title { font-size: 16px; font-weight: 600; }
+.pi-dur { font-size: 12px; color: var(--muted); margin-left: auto; }
+.jarvis {
+  font-size: 13px; color: var(--muted); font-style: italic; margin-top: 8px;
+  border-left: 2px solid var(--accent); padding-left: 12px;
+}
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px 18px; transition: border-color .15s;
+}
+.card:hover { border-color: #3d4a5f; }
+.card.done { border-color: var(--green); }
+.card.done .c-title { text-decoration: line-through; opacity: .6; }
+.c-head { display: flex; align-items: flex-start; gap: 10px; }
+.c-check {
+  width: 22px; height: 22px; min-width: 22px; border-radius: 6px; border: 2px solid var(--border);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all .15s; font-size: 14px; color: transparent; margin-top: 2px;
+}
+.c-check:hover { border-color: var(--green); }
+.card.done .c-check { background: var(--green); border-color: var(--green); color: #0d1117; }
+.c-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--accent2); margin-bottom: 2px; }
+.c-title { font-size: 14px; font-weight: 600; }
+.c-desc { font-size: 12px; color: var(--muted); margin: 8px 0 10px; }
+.res { list-style: none; }
+.res li { margin-bottom: 6px; display: flex; align-items: baseline; gap: 6px; }
+.res a { font-size: 12px; color: var(--accent); text-decoration: none; }
+.res a:hover { text-decoration: underline; }
+.tag { font-size: 10px; font-weight: 600; padding: 1px 8px; border-radius: 99px; white-space: nowrap; }
+.tag-yt { background: rgba(255,138,101,.15); color: var(--coral); }
+.tag-uni { background: rgba(102,187,106,.15); color: var(--green); }
+.tag-book { background: rgba(179,157,219,.15); color: var(--purple); }
+.tag-tool { background: rgba(79,195,247,.15); color: var(--accent); }
+
+.tip {
+  background: var(--surface2); border-radius: 8px; padding: 10px 14px; margin-top: 10px;
+  font-size: 12px; color: var(--muted); border-left: 2px solid var(--accent2);
+}
+.warning {
+  background: rgba(255,183,77,.08); border: 1px solid rgba(255,183,77,.3);
+  border-radius: var(--radius); padding: 14px 18px; margin-top: 18px; font-size: 13px; color: var(--accent2);
+}
+.reset-btn {
+  margin-top: 24px; padding: 8px 18px; border-radius: 99px; font-size: 12px; cursor: pointer;
+  background: transparent; border: 1px solid var(--border); color: var(--muted); transition: all .15s;
+}
+.reset-btn:hover { border-color: var(--coral); color: var(--coral); }
+footer { text-align: center; font-size: 11px; color: var(--muted); margin-top: 30px; }
+</style>
+</head>
+<body>
+
+<style>
+.nao-home-button{
+  position:fixed;left:12px;bottom:14px;z-index:9999;
+  display:inline-flex;align-items:center;gap:7px;
+  padding:9px 13px;border-radius:999px;
+  color:#e6e9ef;background:rgba(13,17,23,.92);
+  border:1px solid #3a4558;text-decoration:none;
+  font:600 12px/1.2 system-ui,sans-serif;
+  box-shadow:0 10px 30px rgba(0,0,0,.28);
+  backdrop-filter:blur(10px);
+}
+.nao-home-button:hover{border-color:#4fc3f7;color:#4fc3f7}
+</style>
+<a class="nao-home-button" href="./index.html" aria-label="Retour au tableau de bord">← Tableau de bord</a>
+
+
+<header>
+  <div class="header-inner">
+    <h1>NAO <span>Engineering OS</span></h1>
+    <div class="subtitle">Programme Ingénieur Électronique & Mécanique · 4 phases · ~4 ans · 100% gratuit</div>
+    <div class="global-progress">
+      <div class="gp-label"><span>Progression globale</span><span id="gp-text">0%</span></div>
+      <div class="gp-track"><div class="gp-fill" id="gp-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="tabs" id="tabs"></div>
+  <div id="phases"></div>
+  <button class="reset-btn" onclick="resetAll()">Réinitialiser toute la progression</button>
+  <footer>Conçu par J.A.R.V.I.S. — parce que quelqu'un devait bien le faire correctement.</footer>
+</div>
+
+<script>
+const DATA = [
+  {
+    id: "p1", tab: "Phase 1 — Fondations", badge: "Bases communes", badgeColor: "#b39ddb",
+    title: "Mathématiques, Physique & Programmation", dur: "12–14 mois",
+    jarvis: "Sans ces fondations, vous construirez sur du sable. Et le sable, Madame, ça coûte cher à réparer.",
+    tip: "Méthode : 2h de MIT OCW le matin + 30 min de 3Blue1Brown le soir pour l'intuition. Puis exercices. Toujours les exercices.",
+    subjects: [
+      { label: "Mathématiques", title: "Algèbre linéaire & Calcul",
+        desc: "Dérivées, intégrales, matrices, Fourier. La boîte à outils invisible derrière chaque formule.",
+        res: [
+          ["uni","MIT OCW","Linear Algebra – Gilbert Strang","https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/"],
+          ["yt","YouTube","Essence of Linear Algebra – 3Blue1Brown","https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab"],
+          ["uni","MIT OCW","Single Variable Calculus","https://ocw.mit.edu/courses/18-01sc-single-variable-calculus-fall-2010/"],
+          ["yt","YouTube","Essence of Calculus – 3Blue1Brown","https://www.youtube.com/playlist?list=PLZHQObOWTQDMsr9K-rj53DwVRMYO3t5Yr"]
+        ]},
+      { label: "Physique", title: "Mécanique classique & Électromagnétisme",
+        desc: "Newton, Lagrange, Maxwell. Ce que vous devez maîtriser avant de toucher un composant.",
+        res: [
+          ["uni","MIT OCW","Classical Mechanics","https://ocw.mit.edu/courses/8-01sc-classical-mechanics-fall-2016/"],
+          ["uni","MIT OCW","Electricity & Magnetism","https://ocw.mit.edu/courses/8-02-physics-ii-electricity-and-magnetism-spring-2019/"],
+          ["yt","YouTube","Crash Course Physics","https://www.youtube.com/playlist?list=PL8dPuuaLjXtN0ge7yDk_UA0ldZJdhwkoV"],
+          ["book","Livre","The Feynman Lectures (gratuit en ligne)","https://www.feynmanlectures.caltech.edu/"]
+        ]},
+      { label: "Programmation", title: "Python & C/C++ pour l'ingénierie",
+        desc: "Python pour le calcul, C pour le matériel bas-niveau. Deux langages, un ingénieur.",
+        res: [
+          ["uni","Harvard","CS50 Python (gratuit)","https://cs50.harvard.edu/python/"],
+          ["uni","MIT OCW","Intro to C++","https://ocw.mit.edu/courses/6-096-introduction-to-c-january-iap-2011/"],
+          ["book","Livre","Learn C – learn-c.org (interactif)","https://www.learn-c.org/"]
+        ]},
+      { label: "Équations différentielles", title: "EDO & Systèmes dynamiques",
+        desc: "Modéliser tout ce qui bouge, vibre ou oscille. Indispensable pour les deux disciplines.",
+        res: [
+          ["uni","MIT OCW","Differential Equations","https://ocw.mit.edu/courses/18-03sc-differential-equations-fall-2011/"],
+          ["yt","YouTube","Differential Equations – 3Blue1Brown","https://www.youtube.com/playlist?list=PLZHQObOWTQDNPOjrT6KVlfJuKtYTftqH6"]
+        ]}
+    ]
+  },
+  {
+    id: "p2", tab: "Phase 2 — Cœur technique", badge: "Électronique + Mécanique", badgeColor: "#4fc3f7",
+    title: "Circuits, Signaux, Solides & Fluides", dur: "10–12 mois",
+    jarvis: "Voilà où ça devient sérieux. Si un circuit vous résiste, il a probablement tort. Ou vous. Statistiquement... vous.",
+    tip: "Achetez un kit Arduino de base (~100₪) dès le début de cette phase. La théorie sans les mains, c'est du tourisme intellectuel.",
+    subjects: [
+      { label: "Circuits électriques", title: "Analyse de circuits DC/AC",
+        desc: "Kirchhoff, Thevenin/Norton, régimes transitoires. La grammaire de l'électronique.",
+        res: [
+          ["uni","MIT OCW","Circuits and Electronics","https://ocw.mit.edu/courses/6-002-circuits-and-electronics-spring-2007/"],
+          ["book","Livre","All About Circuits – textbook gratuit","https://www.allaboutcircuits.com/textbook/"],
+          ["yt","YouTube","ElectroBOOM (fun + rigoureux)","https://www.youtube.com/@ElectroBOOM"]
+        ]},
+      { label: "Électronique analogique", title: "Amplis, filtres, transistors",
+        desc: "Op-amps, BJT, MOSFET. Comprendre pourquoi votre signal est amplifié — ou détruit.",
+        res: [
+          ["yt","YouTube","EEVblog – électronique pratique","https://www.youtube.com/@EEVblog"],
+          ["yt","YouTube","GreatScott! – projets électroniques","https://www.youtube.com/@greatscottlab"],
+          ["uni","Khan","Electrical Engineering – Khan Academy","https://www.khanacademy.org/science/electrical-engineering"]
+        ]},
+      { label: "Électronique numérique", title: "Logique, FPGA & Microcontrôleurs",
+        desc: "Portes logiques, circuits séquentiels, Arduino, STM32. Du bit au système.",
+        res: [
+          ["uni","Nand2Tetris","De la porte NAND à l'OS complet","https://www.nand2tetris.org/"],
+          ["yt","YouTube","Ben Eater – construire un CPU","https://www.youtube.com/@BenEater"],
+          ["uni","MIT OCW","Computation Structures","https://ocw.mit.edu/courses/6-004-computation-structures-spring-2017/"]
+        ]},
+      { label: "Traitement du signal", title: "Fourier, filtrage, DSP",
+        desc: "FFT, convolution, filtres numériques. L'art d'écouter ce que disent vos signaux.",
+        res: [
+          ["uni","MIT OCW","Signals and Systems","https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/"],
+          ["book","Livre","The Scientist's Guide to DSP (gratuit)","https://www.dspguide.com/"]
+        ]},
+      { label: "Statique & Dynamique", title: "Forces et mouvements",
+        desc: "Équilibres, cinématique, énergie, inertie. Ce qui tient debout — et ce qui tombe.",
+        res: [
+          ["uni","MIT OCW","Engineering Dynamics","https://ocw.mit.edu/courses/2-003sc-engineering-dynamics-fall-2011/"],
+          ["uni","Site","Engineering Mechanics – Jacob Moore (gratuit)","http://mechanicsmap.psu.edu/"]
+        ]},
+      { label: "Résistance des matériaux", title: "Contraintes, déformations, rupture",
+        desc: "Pourquoi les structures résistent — ou cèdent. Essentiel avant toute conception.",
+        res: [
+          ["uni","MIT OCW","Mechanics & Materials","https://ocw.mit.edu/courses/2-001-mechanics-materials-i-fall-2006/"],
+          ["yt","YouTube","The Efficient Engineer","https://www.youtube.com/@TheEfficientEngineer"]
+        ]},
+      { label: "CAO", title: "FreeCAD & Fusion 360",
+        desc: "Concevoir en 3D. FreeCAD est open-source, Fusion 360 gratuit en licence perso.",
+        res: [
+          ["yt","YouTube","FreeCAD – chaîne officielle","https://www.youtube.com/@FreeCADNews"],
+          ["tool","Outil","FreeCAD (téléchargement gratuit)","https://www.freecad.org/"],
+          ["yt","YouTube","Fusion 360 pour débutants – Product Design Online","https://www.youtube.com/@ProductDesignOnline"]
+        ]}
+    ]
+  },
+  {
+    id: "p3", tab: "Phase 3 — Systèmes", badge: "Systèmes intégrés", badgeColor: "#66bb6a",
+    title: "Contrôle, Énergie, Fabrication & Embarqué", dur: "10–12 mois",
+    jarvis: "Vous entrez dans la zone où électroniciens et mécaniciens se disputent. Réponse : le mécatronicien a toujours raison. Vous, donc. Bientôt.",
+    tip: "C'est ici que votre expérience Python devient une arme : MATLAB peut être remplacé par Python + NumPy + SciPy + Matplotlib, tout gratuit.",
+    subjects: [
+      { label: "Automatique", title: "Systèmes de contrôle & PID",
+        desc: "Boucles fermées, stabilité, PID, Bode. Faire obéir les systèmes.",
+        res: [
+          ["yt","YouTube","Control Theory – Brian Douglas","https://www.youtube.com/@BrianBDouglas"],
+          ["yt","YouTube","MATLAB Tech Talks – Control Systems","https://www.youtube.com/playlist?list=PLn8PRpmsu08pQBgjxYFXSsODEF3Jqmm-y"],
+          ["uni","MIT OCW","Feedback Control Systems","https://ocw.mit.edu/courses/16-30-feedback-control-systems-fall-2010/"]
+        ]},
+      { label: "Systèmes embarqués", title: "Arduino, Raspberry Pi, RTOS",
+        desc: "Programmer du matériel physique. Capteurs, actionneurs, temps réel.",
+        res: [
+          ["yt","YouTube","DroneBot Workshop – Arduino & Pi","https://www.youtube.com/@Dronebotworkshop"],
+          ["uni","MIT OCW","Microcomputer Project Lab","https://ocw.mit.edu/courses/6-115-microcomputer-project-laboratory-spring-2012/"],
+          ["yt","YouTube","Phil's Lab – STM32 & PCB design","https://www.youtube.com/@PhilsLab"]
+        ]},
+      { label: "Électrotechnique", title: "Convertisseurs, moteurs & énergie",
+        desc: "Transformateurs, moteurs AC/DC, DC-DC. Le pont vers la puissance réelle.",
+        res: [
+          ["uni","MIT OCW","Electric Machines","https://ocw.mit.edu/courses/6-685-electric-machines-fall-2013/"],
+          ["yt","YouTube","Sam Ben-Yaakov – Power Electronics","https://www.youtube.com/@sambenyaakov"]
+        ]},
+      { label: "Thermodynamique & Fluides", title: "Échangeurs, cycles thermiques",
+        desc: "Chaleur, entropie, dynamique des fluides. Ce qui chauffe, refroidit et circule.",
+        res: [
+          ["uni","MIT OCW","Thermodynamics & Kinetics","https://ocw.mit.edu/courses/5-60-thermodynamics-kinetics-spring-2008/"],
+          ["yt","YouTube","The Efficient Engineer – Fluids","https://www.youtube.com/@TheEfficientEngineer"]
+        ]},
+      { label: "Fabrication", title: "Usinage, impression 3D & procédés",
+        desc: "De la conception à la pièce réelle. CNC, FDM, SLA. Fabriquer pour vrai.",
+        res: [
+          ["yt","YouTube","Maker's Muse – impression 3D","https://www.youtube.com/@MakersMuse"],
+          ["yt","YouTube","NYC CNC – usinage","https://www.youtube.com/@nyccnc"],
+          ["uni","MIT OCW","Design & Manufacturing","https://ocw.mit.edu/courses/2-008-design-and-manufacturing-ii-spring-2004/"]
+        ]},
+      { label: "Simulation", title: "Python scientifique & FEM",
+        desc: "Simuler avant de construire. Économisez du temps, des pièces, et votre dignité.",
+        res: [
+          ["tool","Outil","SciPy + NumPy (docs officielles)","https://scipy.org/"],
+          ["tool","Outil","Code_Aster – FEM open-source","https://code-aster.org/"],
+          ["yt","YouTube","Mr. P Solver – Python pour physiciens","https://www.youtube.com/@MrPSolver"]
+        ]}
+    ]
+  },
+  {
+    id: "p4", tab: "Phase 4 — Maîtrise", badge: "Projets & Spécialisation", badgeColor: "#ffb74d",
+    title: "Robotique, Projets intégrateurs & Portfolio", dur: "10–12 mois",
+    jarvis: "Les théories sans projet ne sont que du bruit, Madame. Construisez quelque chose qui fonctionne — ou qui explose de manière instructive.",
+    tip: "Idées de projets : bras robotique 3 axes, station météo IoT avec dashboard web (vos compétences web + hardware !), véhicule autonome miniature, régulateur de température PID.",
+    subjects: [
+      { label: "Robotique", title: "Cinématique, ROS & contrôle",
+        desc: "Mécanique + électronique + logiciel = robot. C'est ici que tout converge.",
+        res: [
+          ["yt","YouTube","Articulated Robotics – ROS 2","https://www.youtube.com/@ArticulatedRobotics"],
+          ["uni","MIT OCW","Underactuated Robotics","https://ocw.mit.edu/courses/6-832-underactuated-robotics-spring-2009/"],
+          ["uni","Cours","Modern Robotics – Northwestern (gratuit)","http://hades.mech.northwestern.edu/index.php/Modern_Robotics"]
+        ]},
+      { label: "Projets intégrateurs", title: "Construire pour prouver",
+        desc: "Ce que vous devriez bâtir pour votre portfolio. La réputation se construit par l'acte.",
+        res: [
+          ["uni","Hackster","Projets électronique open-source","https://www.hackster.io/"],
+          ["uni","Instructables","Projets méca-électroniques","https://www.instructables.com/"],
+          ["yt","YouTube","Practical Engineering","https://www.youtube.com/@PracticalEngineeringChannel"]
+        ]},
+      { label: "Spécialisation", title: "IA embarquée, IoT & énergie",
+        desc: "Choisir votre créneau. Chaque direction ouvre un marché différent en Israël.",
+        res: [
+          ["uni","edX","TinyML – Harvard (audit gratuit)","https://www.edx.org/certificates/professional-certificate/harvardx-tiny-machine-learning"],
+          ["uni","MIT OCW","Photovoltaïques","https://ocw.mit.edu/courses/2-627-fundamentals-of-photovoltaics-fall-2013/"],
+          ["yt","YouTube","Andreas Spiess – IoT & capteurs","https://www.youtube.com/@AndreasSpiess"]
+        ]},
+      { label: "Portfolio & preuve", title: "Montrer votre niveau au monde",
+        desc: "GitHub avec vos projets, contributions open-source, hackathons.",
+        res: [
+          ["tool","GitHub","Votre portfolio public","https://github.com/"],
+          ["uni","Kaggle","Compétitions data & ingénierie","https://www.kaggle.com/"],
+          ["tool","Outil","Wokwi – simulateur Arduino en ligne","https://wokwi.com/"]
+        ]}
+    ]
+  }
+];
+
+const TAGS = { yt: "tag-yt", uni: "tag-uni", book: "tag-book", tool: "tag-tool" };
+let progress = {};
+try { progress = JSON.parse(localStorage.getItem("nao-eng-progress") || "{}"); } catch(e) { progress = {}; }
+
+function save() { localStorage.setItem("nao-eng-progress", JSON.stringify(progress)); }
+
+function totalSubjects() { return DATA.reduce((n,p) => n + p.subjects.length, 0); }
+function doneCount() { return Object.values(progress).filter(Boolean).length; }
+
+function updateGlobal() {
+  const pct = Math.round(doneCount() / totalSubjects() * 100);
+  document.getElementById("gp-fill").style.width = pct + "%";
+  document.getElementById("gp-text").textContent = pct + "% (" + doneCount() + "/" + totalSubjects() + " modules)";
+  DATA.forEach((p, i) => {
+    const done = p.subjects.filter((s, j) => progress[p.id + "-" + j]).length;
+    document.getElementById("badge-" + p.id).textContent = done + "/" + p.subjects.length;
+  });
+}
+
+function toggle(key, el) {
+  progress[key] = !progress[key];
+  el.classList.toggle("done", progress[key]);
+  save();
+  updateGlobal();
+}
+
+function resetAll() {
+  if (!confirm("Réinitialiser toute la progression ? J.A.R.V.I.S. désapprouve, mais c'est votre choix.")) return;
+  progress = {};
+  save();
+  document.querySelectorAll(".card").forEach(c => c.classList.remove("done"));
+  updateGlobal();
+}
+
+function switchTab(id) {
+  document.querySelectorAll(".phase").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.getElementById("tab-" + id).classList.add("active");
+}
+
+// Render
+const tabsEl = document.getElementById("tabs");
+const phasesEl = document.getElementById("phases");
+
+DATA.forEach((p, i) => {
+  const tab = document.createElement("div");
+  tab.className = "tab" + (i === 0 ? " active" : "");
+  tab.id = "tab-" + p.id;
+  tab.innerHTML = p.tab + ' <span class="badge" id="badge-' + p.id + '"></span>';
+  tab.onclick = () => switchTab(p.id);
+  tabsEl.appendChild(tab);
+
+  const phase = document.createElement("div");
+  phase.className = "phase" + (i === 0 ? " active" : "");
+  phase.id = p.id;
+
+  let cards = "";
+  p.subjects.forEach((s, j) => {
+    const key = p.id + "-" + j;
+    const isDone = progress[key] ? " done" : "";
+    let links = "";
+    s.res.forEach(r => {
+      links += '<li><span class="tag ' + TAGS[r[0]] + '">' + r[1] + '</span><a href="' + r[3] + '" target="_blank" rel="noopener">' + r[2] + '</a></li>';
+    });
+    cards += '<div class="card' + isDone + '" id="card-' + key + '">' +
+      '<div class="c-head">' +
+      '<div class="c-check" onclick="toggle(\'' + key + '\', document.getElementById(\'card-' + key + '\'))">✓</div>' +
+      '<div><div class="c-label">' + s.label + '</div><div class="c-title">' + s.title + '</div></div>' +
+      '</div>' +
+      '<div class="c-desc">' + s.desc + '</div>' +
+      '<ul class="res">' + links + '</ul>' +
+      '</div>';
+  });
+
+  phase.innerHTML =
+    '<div class="phase-intro">' +
+    '<div class="pi-top">' +
+    '<span class="pi-badge" style="background:' + p.badgeColor + '22;color:' + p.badgeColor + '">' + p.badge + '</span>' +
+    '<span class="pi-title">' + p.title + '</span>' +
+    '<span class="pi-dur">' + p.dur + '</span>' +
+    '</div>' +
+    '<div class="jarvis">' + p.jarvis + '</div>' +
+    '</div>' +
+    '<div class="grid">' + cards + '</div>' +
+    '<div class="tip">💡 ' + p.tip + '</div>';
+
+  phasesEl.appendChild(phase);
+});
+
+updateGlobal();
+</script>
+</body>
+</html>

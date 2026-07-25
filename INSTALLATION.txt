@@ -1,0 +1,10 @@
+NAO TECH OS — INSTALLATION
+
+1. Décompressez ce ZIP.
+2. Envoyez TOUS les fichiers extraits dans un dépôt GitHub public.
+3. Vérifiez que index.html est directement à la racine du dépôt.
+4. GitHub : Settings > Pages > Deploy from a branch > main > /(root) > Save.
+5. Ouvrez l'adresse GitHub Pages dans Chrome sur Android.
+6. Menu ⋮ > Ajouter à l'écran d'accueil > Installer.
+
+Le ZIP seul ne doit pas être publié à la place des fichiers extraits.

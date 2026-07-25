@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAO Fullstack & AI OS</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #1c2330;
+  --border: #2d3646;
+  --text: #e6e9ef;
+  --muted: #8b95a7;
+  --accent: #4fc3f7;
+  --accent2: #ffb74d;
+  --green: #66bb6a;
+  --purple: #b39ddb;
+  --coral: #ff8a65;
+  --pink: #f48fb1;
+  --radius: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding-bottom: 60px;
+}
+header {
+  padding: 26px 20px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: sticky; top: 0; z-index: 10;
+}
+.header-inner { max-width: 1000px; margin: 0 auto; }
+h1 { font-size: 20px; font-weight: 600; letter-spacing: .3px; }
+h1 span { color: var(--accent); }
+.subtitle { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.global-progress { margin-top: 14px; }
+.gp-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+.gp-track { height: 8px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+.gp-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--purple)); border-radius: 99px; transition: width .4s ease; }
+
+.container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+
+.tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.tab {
+  padding: 8px 16px; border-radius: 99px; font-size: 13px; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+  transition: all .15s; user-select: none;
+}
+.tab:hover { border-color: var(--accent); }
+.tab.active { background: var(--accent); color: #0d1117; font-weight: 600; border-color: var(--accent); }
+.tab .badge { font-size: 11px; opacity: .8; margin-left: 4px; }
+
+.phase { display: none; animation: fadein .25s ease; }
+.phase.active { display: block; }
+@keyframes fadein { from { opacity: 0; transform: translateY(6px);} to { opacity:1; transform:none;} }
+
+.phase-intro {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px 20px; margin-bottom: 18px;
+}
+.pi-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.pi-badge { font-size: 11px; font-weight: 600; padding: 3px 12px; border-radius: 99px; }
+.pi-title { font-size: 16px; font-weight: 600; }
+.pi-dur { font-size: 12px; color: var(--muted); margin-left: auto; }
+.jarvis {
+  font-size: 13px; color: var(--muted); font-style: italic; margin-top: 8px;
+  border-left: 2px solid var(--accent); padding-left: 12px;
+}
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px 18px; transition: border-color .15s;
+}
+.card:hover { border-color: #3d4a5f; }
+.card.done { border-color: var(--green); }
+.card.done .c-title { text-decoration: line-through; opacity: .6; }
+.c-head { display: flex; align-items: flex-start; gap: 10px; }
+.c-check {
+  width: 22px; height: 22px; min-width: 22px; border-radius: 6px; border: 2px solid var(--border);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all .15s; font-size: 14px; color: transparent; margin-top: 2px;
+}
+.c-check:hover { border-color: var(--green); }
+.card.done .c-check { background: var(--green); border-color: var(--green); color: #0d1117; }
+.c-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--accent2); margin-bottom: 2px; }
+.c-week { font-size: 10px; color: var(--muted); font-weight: 400; text-transform: none; letter-spacing: 0; }
+.c-title { font-size: 14px; font-weight: 600; }
+.c-desc { font-size: 12px; color: var(--muted); margin: 8px 0 10px; }
+.res { list-style: none; }
+.res li { margin-bottom: 6px; display: flex; align-items: baseline; gap: 6px; }
+.res a { font-size: 12px; color: var(--accent); text-decoration: none; }
+.res a:hover { text-decoration: underline; }
+.tag { font-size: 10px; font-weight: 600; padding: 1px 8px; border-radius: 99px; white-space: nowrap; }
+.tag-yt { background: rgba(255,138,101,.15); color: var(--coral); }
+.tag-uni { background: rgba(102,187,106,.15); color: var(--green); }
+.tag-book { background: rgba(179,157,219,.15); color: var(--purple); }
+.tag-doc { background: rgba(79,195,247,.15); color: var(--accent); }
+.tag-prj { background: rgba(244,143,177,.15); color: var(--pink); }
+
+.tip {
+  background: var(--surface2); border-radius: 8px; padding: 10px 14px; margin-top: 14px;
+  font-size: 12px; color: var(--muted); border-left: 2px solid var(--accent2);
+}
+.reset-btn {
+  margin-top: 24px; padding: 8px 18px; border-radius: 99px; font-size: 12px; cursor: pointer;
+  background: transparent; border: 1px solid var(--border); color: var(--muted); transition: all .15s;
+}
+.reset-btn:hover { border-color: var(--coral); color: var(--coral); }
+footer { text-align: center; font-size: 11px; color: var(--muted); margin-top: 30px; }
+</style>
+</head>
+<body>
+
+<style>
+.nao-home-button{
+  position:fixed;left:12px;bottom:14px;z-index:9999;
+  display:inline-flex;align-items:center;gap:7px;
+  padding:9px 13px;border-radius:999px;
+  color:#e6e9ef;background:rgba(13,17,23,.92);
+  border:1px solid #3a4558;text-decoration:none;
+  font:600 12px/1.2 system-ui,sans-serif;
+  box-shadow:0 10px 30px rgba(0,0,0,.28);
+  backdrop-filter:blur(10px);
+}
+.nao-home-button:hover{border-color:#4fc3f7;color:#4fc3f7}
+</style>
+<a class="nao-home-button" href="./index.html" aria-label="Retour au tableau de bord">← Tableau de bord</a>
+
+
+<header>
+  <div class="header-inner">
+    <h1>NAO <span>Fullstack & AI OS</span></h1>
+    <div class="subtitle">Votre cursus Developers Institute, réorganisé · + les meilleures ressources gratuites du monde · 5 phases</div>
+    <div class="global-progress">
+      <div class="gp-label"><span>Progression globale</span><span id="gp-text">0%</span></div>
+      <div class="gp-track"><div class="gp-fill" id="gp-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="tabs" id="tabs"></div>
+  <div id="phases"></div>
+  <button class="reset-btn" onclick="resetAll()">Réinitialiser toute la progression</button>
+  <footer>Structuré par J.A.R.V.I.S. sur la base du curriculum réel — parce que l'ordre, c'est la moitié de l'apprentissage.</footer>
+</div>
+
+<script>
+const DATA = [
+/* ================= PHASE 1 — FONDATIONS ================= */
+{
+  id: "p1", tab: "Phase 1 — Fondations", badge: "Python · JS · Web", badgeColor: "#b39ddb",
+  title: "Python, JavaScript & le Web (Semaines 1–4 du bootcamp)", dur: "~6 semaines",
+  jarvis: "Vos semaines 1 à 4, mais dans un ordre qui a du sens. Python d'abord pour penser, JavaScript ensuite pour agir, le DOM pour toucher.",
+  tip: "Méthode : pour chaque module, 1 ressource principale (université ou doc) + 1 vidéo pour l'intuition + du code TOUS les jours. Regarder sans coder = tourisme.",
+  subjects: [
+    { label: "Python", week: "Semaines 1–2", title: "Bases, fonctions, listes, dictionnaires",
+      desc: "Variables, boucles, fonctions, structures de données. Le socle de tout — y compris de l'IA qui arrive en Phase 4.",
+      res: [
+        ["uni","Harvard","CS50 Python — le meilleur cours du monde, gratuit","https://cs50.harvard.edu/python/"],
+        ["yt","YouTube","Python Full Course – Corey Schafer","https://www.youtube.com/playlist?list=PL-osiE80TeTt2d9bfVyTiXJA-UTHn6WwU"],
+        ["book","Livre","Automate the Boring Stuff (gratuit en ligne)","https://automatetheboringstuff.com/"],
+        ["prj","Pratique","Exercism — exercices Python corrigés","https://exercism.org/tracks/python"]
+      ]},
+    { label: "Git & Terminal", week: "Semaine 1", title: "Ligne de commande, Git, GitHub",
+      desc: "Votre machine à remonter le temps et votre CV public. Non négociable pour un dev.",
+      res: [
+        ["uni","MIT","The Missing Semester — outils du développeur","https://missing.csail.mit.edu/"],
+        ["yt","YouTube","Git & GitHub for Beginners – freeCodeCamp","https://www.youtube.com/watch?v=RGOj5yH7evk"],
+        ["book","Livre","Pro Git (gratuit, référence officielle)","https://git-scm.com/book/fr/v2"]
+      ]},
+    { label: "HTML & CSS", week: "Semaines 2–3", title: "Structure & style du Web",
+      desc: "Sémantique, Flexbox, Grid, responsive. La fondation visible de tout ce que vous construirez.",
+      res: [
+        ["doc","MDN","MDN Web Docs — LA référence (français)","https://developer.mozilla.org/fr/docs/Learn"],
+        ["uni","freeCodeCamp","Responsive Web Design — certification gratuite","https://www.freecodecamp.org/learn/2022/responsive-web-design/"],
+        ["yt","YouTube","CSS Grid & Flexbox – Kevin Powell","https://www.youtube.com/@KevinPowell"]
+      ]},
+    { label: "JavaScript", week: "Semaines 2–4", title: "Fondamentaux & DOM",
+      desc: "Variables, fonctions, tableaux, objets, événements, manipulation du DOM. Le langage du navigateur.",
+      res: [
+        ["book","Livre","Eloquent JavaScript (gratuit, traduit)","https://eloquentjavascript.net/"],
+        ["doc","Réf.","JavaScript.info — le meilleur tutoriel JS moderne","https://javascript.info/"],
+        ["yt","YouTube","JavaScript DOM – Traversy Media","https://www.youtube.com/watch?v=0ik6X4DJKCc"],
+        ["prj","Pratique","30 projets JS vanilla – JavaScript30 (gratuit)","https://javascript30.com/"]
+      ]}
+  ]
+},
+/* ================= PHASE 2 — JS AVANCÉ & TYPESCRIPT ================= */
+{
+  id: "p2", tab: "Phase 2 — JS avancé", badge: "Async · TS", badgeColor: "#4fc3f7",
+  title: "JavaScript avancé, asynchrone & TypeScript (Semaines 5–7)", dur: "~4 semaines",
+  jarvis: "Le moment où JavaScript cesse d'être un jouet. L'asynchrone sépare les développeurs des copieurs de tutoriels — vous savez déjà de quel côté vous êtes.",
+  tip: "Votre semaine 5 du bootcamp (HTTP, GET/POST) prend tout son sens ici : couplez chaque concept async avec un appel API réel. fetch() + une API publique gratuite = terrain d'entraînement infini.",
+  subjects: [
+    { label: "JS avancé", week: "Semaine 4–5", title: "Closures, prototypes, ES6+",
+      desc: "Destructuring, spread, modules, classes, closures, this. Ce que les entretiens d'embauche adorent demander.",
+      res: [
+        ["book","Livre","You Don't Know JS Yet (gratuit sur GitHub)","https://github.com/getify/You-Dont-Know-JS"],
+        ["yt","YouTube","JavaScript: Understanding the Weird Parts (1ère partie gratuite)","https://www.youtube.com/watch?v=Bv_5Zv5c-Ts"],
+        ["doc","Réf.","JavaScript.info — chapitres avancés","https://javascript.info/advanced-functions"]
+      ]},
+    { label: "Asynchrone", week: "Semaines 5–6", title: "Fetch, Promises, Async/Await",
+      desc: "Event loop, callbacks, promesses, async/await, gestion d'erreurs. Le cœur de toute app connectée.",
+      res: [
+        ["yt","YouTube","L'Event Loop expliqué – Jake Archibald (JSConf)","https://www.youtube.com/watch?v=cCOL7MC4Pl0"],
+        ["doc","MDN","Guide Fetch API & Promises","https://developer.mozilla.org/fr/docs/Web/API/Fetch_API"],
+        ["yt","YouTube","Async JS Full Course – freeCodeCamp","https://www.youtube.com/watch?v=ZYb_ZU8LNxs"],
+        ["prj","Pratique","Public APIs — liste d'APIs gratuites pour s'entraîner","https://github.com/public-apis/public-apis"]
+      ]},
+    { label: "HTTP", week: "Semaine 5", title: "HTTP, REST, GET/POST",
+      desc: "Méthodes, codes de statut, en-têtes, JSON, REST. Le protocole que vous utiliserez chaque jour de votre carrière.",
+      res: [
+        ["doc","MDN","HTTP — la référence complète","https://developer.mozilla.org/fr/docs/Web/HTTP"],
+        ["yt","YouTube","REST API Concepts – Traversy Media","https://www.youtube.com/watch?v=Q-BpqyOT3a8"]
+      ]},
+    { label: "TypeScript", week: "Semaines 7 & 14", title: "Types, interfaces, génériques",
+      desc: "JavaScript avec un filet de sécurité. Le standard de l'industrie — votre bootcamp y consacre 2 semaines, à raison.",
+      res: [
+        ["doc","Officiel","TypeScript Handbook (référence gratuite)","https://www.typescriptlang.org/docs/handbook/intro.html"],
+        ["yt","YouTube","TypeScript Full Course – Matt Pocock","https://www.youtube.com/@mattpocockuk"],
+        ["prj","Pratique","Type Challenges — exercices TS progressifs","https://github.com/type-challenges/type-challenges"],
+        ["uni","Cours","Total TypeScript — tutoriels gratuits","https://www.totaltypescript.com/tutorials"]
+      ]},
+    { label: "POO", week: "Semaine 24", title: "Programmation orientée objet",
+      desc: "Héritage, encapsulation, polymorphisme — en Python ET en JS/TS. Votre bootcamp la met en semaine 24 ; moi je la mets ici, où elle sert vraiment.",
+      res: [
+        ["uni","Cours","Python OOP – Real Python (gratuit)","https://realpython.com/python3-object-oriented-programming/"],
+        ["yt","YouTube","OOP en Python – Corey Schafer","https://www.youtube.com/playlist?list=PL-osiE80TeTsqhIuOqKhwlXsIBIdSeYtc"],
+        ["doc","MDN","Classes en JavaScript","https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Classes"]
+      ]}
+  ]
+},
+/* ================= PHASE 3 — BACKEND & FRONTEND ================= */
+{
+  id: "p3", tab: "Phase 3 — Fullstack", badge: "Node · SQL · React", badgeColor: "#66bb6a",
+  title: "Node.js, Bases de données, React & Redux (Semaines 8–15)", dur: "~8 semaines",
+  jarvis: "Le cœur de votre métier. Huit semaines de bootcamp condensées en un système cohérent : le serveur, la donnée, l'interface. Après ça, le titre « fullstack » cesse d'être une aspiration.",
+  tip: "Fil rouge conseillé : construisez UNE application complète à travers toute cette phase (ex : gestionnaire de dossiers Olim — tiens donc). API Node en semaine 1, base SQL en semaine 2, front React ensuite. Un vrai projet bat dix tutoriels.",
+  subjects: [
+    { label: "Node.js", week: "Semaines 8–9", title: "Serveur web, Express, routes & middleware",
+      desc: "JavaScript côté serveur. Routes, contrôleurs, middleware — l'architecture de votre bootcamp, approfondie.",
+      res: [
+        ["doc","Officiel","Node.js — guides officiels","https://nodejs.org/en/learn"],
+        ["yt","YouTube","Node.js & Express Full Course – freeCodeCamp","https://www.youtube.com/watch?v=Oe421EPjeBE"],
+        ["uni","Univ. Helsinki","Full Stack Open — LE cours universitaire gratuit de référence","https://fullstackopen.com/en/"],
+        ["book","Livre","The Node.js Handbook (gratuit)","https://flaviocopes.com/access/"]
+      ]},
+    { label: "Bases de données", week: "Semaine 10", title: "SQL, PostgreSQL & modélisation",
+      desc: "Tables, jointures, clés, modélisation relationnelle. La donnée est le vrai produit — le code n'est que son serviteur.",
+      res: [
+        ["uni","Stanford","Databases — cours en ligne gratuit","https://online.stanford.edu/courses/soe-ydatabases0005-databases-relational-databases-and-sql"],
+        ["prj","Pratique","SQLBolt — SQL interactif (excellent)","https://sqlbolt.com/"],
+        ["yt","YouTube","PostgreSQL Full Course – freeCodeCamp","https://www.youtube.com/watch?v=qw--VYLpxG4"],
+        ["doc","Réf.","Documentation PostgreSQL","https://www.postgresql.org/docs/"]
+      ]},
+    { label: "Knex & ORM", week: "Semaine 11", title: "Query builders & accès aux données",
+      desc: "Knex.js comme dans votre cursus, plus les concepts d'ORM (Prisma). Le pont propre entre Node et SQL.",
+      res: [
+        ["doc","Officiel","Knex.js — documentation","https://knexjs.org/"],
+        ["doc","Officiel","Prisma — l'ORM moderne (docs + tutoriels)","https://www.prisma.io/docs"],
+        ["yt","YouTube","Knex.js Tutorial – The Coding Train of backend","https://www.youtube.com/results?search_query=knex.js+tutorial"]
+      ]},
+    { label: "React", week: "Semaines 11–13", title: "Composants, state, hooks, événements",
+      desc: "Composants, props, useState, useEffect, hooks avancés. Votre gagne-pain frontend pour les années à venir.",
+      res: [
+        ["doc","Officiel","react.dev — le nouveau tutoriel officiel (excellent)","https://react.dev/learn"],
+        ["uni","Univ. Helsinki","Full Stack Open — partie React","https://fullstackopen.com/en/part1"],
+        ["yt","YouTube","React Full Course 2024 – freeCodeCamp","https://www.youtube.com/watch?v=CgkZ7MvWUAA"],
+        ["prj","Pratique","Frontend Mentor — défis d'intégration réels","https://www.frontendmentor.io/"]
+      ]},
+    { label: "Redux", week: "Semaines 13–15", title: "Redux Toolkit & gestion d'état",
+      desc: "État global, store, slices, RTK Query. Votre bootcamp y tient — sachez aussi quand ne PAS l'utiliser (Context suffit souvent).",
+      res: [
+        ["doc","Officiel","Redux Toolkit — tutoriel officiel","https://redux-toolkit.js.org/tutorials/quick-start"],
+        ["yt","YouTube","Redux Toolkit Full Course – Dave Gray","https://www.youtube.com/watch?v=NqzdVN2tyvQ"],
+        ["doc","Réf.","Quand utiliser Redux (par son créateur)","https://redux.js.org/faq/general#when-should-i-use-redux"]
+      ]},
+    { label: "Projet fullstack", week: "Semaines 8, 15 (hackathons)", title: "Application complète de bout en bout",
+      desc: "React + Node + PostgreSQL + auth + déploiement. Le projet qui remplace un CV. Vos hackathons comptent ici.",
+      res: [
+        ["uni","Univ. Helsinki","Full Stack Open — parties 3 à 7 (projet complet)","https://fullstackopen.com/en/part3"],
+        ["yt","YouTube","MERN/PERN Stack Project – freeCodeCamp","https://www.youtube.com/watch?v=ldYcgPKEZC8"],
+        ["doc","Déploiement","Render — hébergement gratuit fullstack","https://render.com/docs"]
+      ]}
+  ]
+},
+/* ================= PHASE 4 — IA & LLMs ================= */
+{
+  id: "p4", tab: "Phase 4 — IA & LLMs", badge: "Prompt · LLM · RAG", badgeColor: "#ffb74d",
+  title: "Prompt Engineering, LLMs & applications IA (Semaines 16–17)", dur: "~5 semaines",
+  jarvis: "Votre bootcamp effleure ce sujet en deux semaines. Nous, nous allons le maîtriser. C'est ici que « fullstack » devient « fullstack & AI » — la différence salariale mérite le détour.",
+  tip: "Votre superpouvoir : vous savez déjà construire des apps. L'IA n'est qu'une API de plus — mais une API qui raisonne. Chaque concept appris ici doit finir dans une app React/Node fonctionnelle.",
+  subjects: [
+    { label: "Fondements", week: "Prérequis", title: "Comment fonctionne un LLM",
+      desc: "Tokens, embeddings, attention, température. Comprendre la bête avant de la dresser — sans les maths lourdes.",
+      res: [
+        ["yt","YouTube","Intro to LLMs – Andrej Karpathy (1h, culte)","https://www.youtube.com/watch?v=zjkBMFhNj_g"],
+        ["yt","YouTube","Neural Networks series – 3Blue1Brown","https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi"],
+        ["uni","Cours","Hugging Face NLP Course (gratuit)","https://huggingface.co/learn/nlp-course"]
+      ]},
+    { label: "Prompt Engineering", week: "Semaine 16", title: "L'art de piloter les modèles",
+      desc: "Zero-shot, few-shot, chain-of-thought, system prompts, structuration des sorties. Votre semaine 16, version complète.",
+      res: [
+        ["doc","Anthropic","Guide officiel de prompt engineering","https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview"],
+        ["uni","Cours","Prompt Engineering Guide (référence gratuite)","https://www.promptingguide.ai/"],
+        ["uni","DeepLearning.AI","Cours courts gratuits sur les prompts & LLM apps","https://www.deeplearning.ai/short-courses/"]
+      ]},
+    { label: "APIs de LLM", week: "Semaines 16–17", title: "Intégrer l'IA dans vos apps",
+      desc: "Appeler Claude/GPT depuis Node ou Python, streaming, function calling, gestion des coûts. L'IA comme brique fullstack.",
+      res: [
+        ["doc","Anthropic","Documentation API Claude","https://docs.claude.com/"],
+        ["yt","YouTube","Build AI Apps – freeCodeCamp","https://www.youtube.com/results?search_query=build+ai+app+node+freecodecamp"],
+        ["prj","Pratique","Anthropic Cookbook — exemples de code","https://github.com/anthropics/anthropic-cookbook"]
+      ]},
+    { label: "Open-Source LLMs", week: "Semaine 16", title: "Modèles ouverts & exécution locale",
+      desc: "Hugging Face, Ollama, quantization. Faire tourner un modèle chez soi — votre semaine 16, jusqu'au bout.",
+      res: [
+        ["doc","Outil","Ollama — LLM en local en 5 minutes","https://ollama.com/"],
+        ["uni","Hugging Face","Hub & cours open-source","https://huggingface.co/learn"],
+        ["yt","YouTube","Run LLMs locally – NetworkChuck","https://www.youtube.com/watch?v=Wjrdr0NU4Sk"]
+      ]},
+    { label: "RAG", week: "Au-delà du bootcamp", title: "Retrieval-Augmented Generation",
+      desc: "Embeddings, bases vectorielles, chunking. Brancher un LLM sur VOS données — la compétence IA la plus demandée en entreprise.",
+      res: [
+        ["uni","DeepLearning.AI","Building RAG apps (cours court gratuit)","https://www.deeplearning.ai/short-courses/"],
+        ["yt","YouTube","RAG from scratch – LangChain","https://www.youtube.com/playlist?list=PLfaIDFEXuae2LXbO1_PKyVJiQ23ZztA0x"],
+        ["doc","Outil","pgvector — le vectoriel dans PostgreSQL que vous connaissez déjà","https://github.com/pgvector/pgvector"]
+      ]},
+    { label: "ML fondamental", week: "Bonus solide", title: "Les bases du machine learning",
+      desc: "Régression, classification, entraînement. Optionnel pour le métier, précieux pour la profondeur — et vous aimez la profondeur.",
+      res: [
+        ["uni","Stanford","Machine Learning Specialization – Andrew Ng (audit gratuit)","https://www.coursera.org/specializations/machine-learning-introduction"],
+        ["uni","fast.ai","Practical Deep Learning (gratuit, orienté code)","https://course.fast.ai/"],
+        ["book","Livre","Python Data Science Handbook (gratuit)","https://jakevdp.github.io/PythonDataScienceHandbook/"]
+      ]}
+  ]
+},
+/* ================= PHASE 5 — AGENTS & MCP ================= */
+{
+  id: "p5", tab: "Phase 5 — Agents & MCP", badge: "Agentic AI", badgeColor: "#ff8a65",
+  title: "IA agentique, MCP & projets finaux (Semaines 17–18, 24)", dur: "~5 semaines",
+  jarvis: "La frontière. Vos semaines 17-18 traitent MCP et les agents — le sujet le plus récent de votre cursus, et le plus prometteur. Terminez cette phase et vous serez à jour sur ce que 95% des développeurs n'ont pas encore compris.",
+  tip: "Vos mini-projets MCP+Agents du bootcamp sont votre portfolio en or. Documentez-les sur GitHub avec un README soigné : « J'ai construit un agent MCP » en entretien, en 2026, ça change une conversation.",
+  subjects: [
+    { label: "Agents IA", week: "Semaines 17–18", title: "Architecture des agents autonomes",
+      desc: "Boucles de raisonnement, outils, mémoire, planification. Un LLM qui AGIT au lieu de seulement répondre.",
+      res: [
+        ["doc","Anthropic","Building Effective Agents — le guide de référence","https://www.anthropic.com/research/building-effective-agents"],
+        ["uni","DeepLearning.AI","AI Agents courses (gratuits)","https://www.deeplearning.ai/short-courses/"],
+        ["yt","YouTube","AI Agents explained – Matthew Berman","https://www.youtube.com/@matthew_berman"]
+      ]},
+    { label: "MCP", week: "Semaine 17", title: "Model Context Protocol",
+      desc: "Le protocole standard pour connecter les LLM aux outils et aux données. Votre bootcamp l'enseigne — c'est un pari sur l'avenir, et un bon.",
+      res: [
+        ["doc","Officiel","modelcontextprotocol.io — spec & tutoriels","https://modelcontextprotocol.io/"],
+        ["prj","Pratique","Serveurs MCP open-source (exemples à disséquer)","https://github.com/modelcontextprotocol/servers"],
+        ["yt","YouTube","Build an MCP server – tutoriels récents","https://www.youtube.com/results?search_query=build+mcp+server+tutorial"]
+      ]},
+    { label: "Frameworks", week: "Semaine 18", title: "LangChain, LangGraph & orchestration",
+      desc: "Chaînes, graphes d'agents, orchestration multi-étapes. Les frameworks de votre semaine 18, avec le recul critique nécessaire.",
+      res: [
+        ["doc","Officiel","LangChain — docs & tutoriels","https://python.langchain.com/docs/introduction/"],
+        ["uni","Cours","LangGraph academy (gratuit)","https://academy.langchain.com/"],
+        ["yt","YouTube","LangGraph tutorials – LangChain officiel","https://www.youtube.com/@LangChain"]
+      ]},
+    { label: "Projet final IA", week: "Mini-projets S17–18", title: "Agent MCP complet, déployé",
+      desc: "Un agent qui utilise vos propres outils MCP, avec front React et backend Node. La synthèse de TOUT le cursus.",
+      res: [
+        ["prj","Idée","Agent de gestion Salesforce/dossiers (votre quotidien à la Fellowship, automatisé)","https://modelcontextprotocol.io/"],
+        ["prj","Idée","Assistant Hébreu intelligent branché sur votre app Mon Hébreu","https://docs.claude.com/"],
+        ["doc","Déploiement","Vercel — déployer front + fonctions serverless gratuitement","https://vercel.com/docs"]
+      ]},
+    { label: "Carrière", week: "Continu", title: "Portfolio, GitHub & veille",
+      desc: "READMEs soignés, contributions open-source, veille technique. Le marché israélien de la tech récompense la preuve, pas le diplôme.",
+      res: [
+        ["prj","GitHub","Votre profil — 3 projets épinglés, documentés","https://github.com/"],
+        ["uni","roadmap.sh","Roadmaps Fullstack & AI Engineer (repères gratuits)","https://roadmap.sh/full-stack"],
+        ["book","Newsletter","Bytes & TLDR — veille JS/IA en 5 min/jour","https://bytes.dev/"]
+      ]}
+  ]
+}
+];
+
+const TAGS = { yt: "tag-yt", uni: "tag-uni", book: "tag-book", doc: "tag-doc", prj: "tag-prj" };
+let progress = {};
+try { progress = JSON.parse(localStorage.getItem("nao-fullstack-progress") || "{}"); } catch(e) { progress = {}; }
+
+function save() { localStorage.setItem("nao-fullstack-progress", JSON.stringify(progress)); }
+function totalSubjects() { return DATA.reduce((n,p) => n + p.subjects.length, 0); }
+function doneCount() { return Object.values(progress).filter(Boolean).length; }
+
+function updateGlobal() {
+  const pct = Math.round(doneCount() / totalSubjects() * 100);
+  document.getElementById("gp-fill").style.width = pct + "%";
+  document.getElementById("gp-text").textContent = pct + "% (" + doneCount() + "/" + totalSubjects() + " modules)";
+  DATA.forEach(p => {
+    const done = p.subjects.filter((s, j) => progress[p.id + "-" + j]).length;
+    document.getElementById("badge-" + p.id).textContent = done + "/" + p.subjects.length;
+  });
+}
+
+function toggle(key, el) {
+  progress[key] = !progress[key];
+  el.classList.toggle("done", progress[key]);
+  save();
+  updateGlobal();
+}
+
+function resetAll() {
+  if (!confirm("Réinitialiser toute la progression ? Je note que l'effacement de l'histoire est rarement une stratégie gagnante.")) return;
+  progress = {};
+  save();
+  document.querySelectorAll(".card").forEach(c => c.classList.remove("done"));
+  updateGlobal();
+}
+
+function switchTab(id) {
+  document.querySelectorAll(".phase").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.getElementById("tab-" + id).classList.add("active");
+}
+
+const tabsEl = document.getElementById("tabs");
+const phasesEl = document.getElementById("phases");
+
+DATA.forEach((p, i) => {
+  const tab = document.createElement("div");
+  tab.className = "tab" + (i === 0 ? " active" : "");
+  tab.id = "tab-" + p.id;
+  tab.innerHTML = p.tab + ' <span class="badge" id="badge-' + p.id + '"></span>';
+  tab.onclick = () => switchTab(p.id);
+  tabsEl.appendChild(tab);
+
+  const phase = document.createElement("div");
+  phase.className = "phase" + (i === 0 ? " active" : "");
+  phase.id = p.id;
+
+  let cards = "";
+  p.subjects.forEach((s, j) => {
+    const key = p.id + "-" + j;
+    const isDone = progress[key] ? " done" : "";
+    let links = "";
+    s.res.forEach(r => {
+      links += '<li><span class="tag ' + TAGS[r[0]] + '">' + r[1] + '</span><a href="' + r[3] + '" target="_blank" rel="noopener">' + r[2] + '</a></li>';
+    });
+    cards += '<div class="card' + isDone + '" id="card-' + key + '">' +
+      '<div class="c-head">' +
+      '<div class="c-check" onclick="toggle(\'' + key + '\', document.getElementById(\'card-' + key + '\'))">✓</div>' +
+      '<div><div class="c-label">' + s.label + ' <span class="c-week">· ' + s.week + '</span></div><div class="c-title">' + s.title + '</div></div>' +
+      '</div>' +
+      '<div class="c-desc">' + s.desc + '</div>' +
+      '<ul class="res">' + links + '</ul>' +
+      '</div>';
+  });
+
+  phase.innerHTML =
+    '<div class="phase-intro">' +
+    '<div class="pi-top">' +
+    '<span class="pi-badge" style="background:' + p.badgeColor + '22;color:' + p.badgeColor + '">' + p.badge + '</span>' +
+    '<span class="pi-title">' + p.title + '</span>' +
+    '<span class="pi-dur">' + p.dur + '</span>' +
+    '</div>' +
+    '<div class="jarvis">' + p.jarvis + '</div>' +
+    '</div>' +
+    '<div class="grid">' + cards + '</div>' +
+    '<div class="tip">💡 ' + p.tip + '</div>';
+
+  phasesEl.appendChild(phase);
+});
+
+updateGlobal();
+</script>
+</body>
+</html>
